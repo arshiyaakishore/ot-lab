@@ -22,9 +22,7 @@ plot(x1,y1,'r',x1,y2,'g',x1,y3,'b')
 
 c1=find(x1==0) 
 cx1=find(y1==0) 
-line1=[x1([c1 cx1]);
-
-y1([c1 cx1])]'
+line1=[x1([c1 cx1]); y1([c1 cx1])]'
 
 c2=find(x1==0) 
 cx2=find(y2==0) 
