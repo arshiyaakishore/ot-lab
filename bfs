@@ -1,0 +1,29 @@
+C=[2 3 5 7]             
+A=[12  3 -11 4; 1 2 6 -7]     
+B=[7;3]                           
+n=size(A,2) %number of columns
+m=size(A,1)  %number of rows
+if n>m 
+    nCm=nchoosek(n,m)   
+    p=nchoosek(1:n,m)    %put variables=0 in pairs using different combinations
+    sol=[]              
+    for i=1:nCm
+        y=zeros(n,1)
+        A1=A(:,p(i,:))
+        X=inv(A1)*B     %inverse to find solution
+
+        if all (X>=0 & X~=inf & X~=-inf)    %feasibility condition
+            y(p(i,:))=X
+            sol=[sol,y]
+        end
+    end
+else
+    error('no. of constraints greater than no of variables')
+end
+z=C*sol
+[obj index]=max(z)
+
+
+bfs=sol(:,index)
+optval=[bfs',obj]
+array2table(optval,'VariableNames', {'x1','x2','x3','x4','z'})   %VariableNames : correct, Variable names, etc:wrong syntax
