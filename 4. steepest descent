@@ -1,5 +1,6 @@
 %steepest descent
 
+
 a=0
 b=0
 f= @(x,y) x-y+2*(x^2)+2*x*y+(y^2);
