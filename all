@@ -1,5 +1,4 @@
 %Simplex
-
 clc
 clear all
 %%Inputs
@@ -51,4 +50,142 @@ while RUN
     end
 end
 
+
+
+
+
+
+%Big M
+clc
+clear
+M=1000;
+cost=[2 3 0 0 -M 0];
+a=[5 9 -1 0 1; 9 2 0 1 0];
+b=[22;36];
+artifical_var=[5];  
+bv=[4 5];
+A=[a b];
+Var={'x1','x2','s1','s2','A1','sol'};
+zjcj=cost(bv)*A-cost;
+% Display initial simplex table
+simplex_table=[zjcj; A];
+array2table(simplex_table,'VariableNames',Var)
+RUN=true;
+ while RUN
+if any(zjcj(1:end-1)<0) % check for negative value
+ fprintf(' The current BFS is not optimal \n');
+ zc = zjcj(1:end-1);
+ [Enter_val, pvt_col]= min(zc) ;
+ if all(A(:,pvt_col)<=0)
+  error('LPP is Unbounded');
+ else
+ sol=A(:,end);
+ column=A(:,pvt_col);
+  for i=1:size(A,1)
+ if column(i)>0
+ ratio(i) = sol (i)./column(i);
+ else
+ ratio(i) = inf;
+ end
+  end
+  [leaving_value, pvt_row]=min(ratio);
+ end
+ bv(pvt_row)=pvt_col;
+ pvt_key=A(pvt_row, pvt_col);
+ A(pvt_row,:)=A (pvt_row,:)./pvt_key;
+ % row operation 
+for i=1:size(A,1)
+ if i~=pvt_row
+ A(i,:)=A(i,:)-A (i, pvt_col).*A(pvt_row,:);
+ end
+end
+ zjcj=cost(bv)*A-cost;
+ next_table=[zjcj; A];
+array2table(next_table,'VariableNames',Var)
+
+else
+    RUN=false;
+    if any(bv==artifical_var(1))
+        error('Infeasible solution');
+    else
+    fprintf('The table is optimal %f \n',zjcj(end));
+end
+end
+  end
+
+
+
+
+%Transportation Problem
+%least cost
+clc
+clear all
+c = [4 2 3 5 6; 1 9 4 1 8; 3 1 4 2 7; 5 3 8 6 4];
+a = [4 5 9 12]; 
+b = [7 9 5 8 4];
+m = size(c,1);
+n = size(c,2);
+z = 0;
+if sum(a) == sum(b)
+    fprintf('Transportation Problem is balanced\n');
+else
+    fprintf('Transportation Problem is unbalanced\n');
+
+if sum(a) < sum(b)
+    c(end+1,:) = zeros(1,length(b))
+    a(end+1) = sum(b)-sum(a)
+else
+    c(:,end+1) = zeros(length(a),1)
+    b(end+1) = sum(a)-sum(b)
+end
+end
+
+x =zeros(m,n)
+initial_c = c
+
+for i = 1:size(c,1)
+    for j = 1:size(c,2)
+        cpq = min(c(:))
+        if cpq == inf
+            break
+        end
+        [p1,q1] = find(cpq==c)
+        xpq = min(a(p1),b(q1))
+        [x1,ind] = max(xpq)
+        p = p1(ind)
+        q=q1(ind)
+        x(p,q) = min(a(p),b(q))
+        if min(a(p),b(q)) == a(p)
+            b(q) = b(q)-a(p)
+            a(p) = a(p)-x(p,q)
+            c(p,:)=inf
+    else
+        a(p) = a(p)-b(q)
+        b(q) = b(q)-x(p,q)
+        c(:,q)=inf
+        end
+end
+end
+
+for i = 1:size(c,1)
+    for j = 1:size(c,2)
+        z=z+initial_c(i,j)*x(i,j)
+    end
+end
+
+
+
+%steepest descent
+a=0
+b=0
+f= @(x,y) x-y+2*(x^2)+2*x*y+(y^2);
+grad=@(x,y) [1+4*x+2*y, -1+2*x+2*y]
+
+for k=1:4
+d=-grad(a,b)/norm(grad(a,b));
+fun=@(z)  f((a+z*d(1)),(b+z*d(2))) 
+lambda = fminbnd(fun,0,100)
+a=a+lambda*d(1)
+b=b+lambda*d(2)
+end
 
