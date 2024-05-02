@@ -1,0 +1,54 @@
+%Simplex
+
+clc
+clear all
+%%Inputs
+cost=[2 -5 0 0 0];
+a=[7 -4 1 0;-3 5 0 1];
+b=[12;15];
+A=[a b];
+var={'x1','x2','s1','s2','sol'}
+BV=[3 4]; %Position of basic variable
+%%Initail Simple Table
+zjcj=cost(BV)*A-cost;
+simplex_table=[A;zjcj];
+array2table(simplex_table,'VariableNames',var)
+RUN=true
+while RUN
+    if any(zjcj(1:end-1)<0)   %end-1 because last b wala col not checked
+        fprintf('BFS is not optimal')
+        zc=zjcj(1:end-1)
+        [Enter_val,pvt_col]=min(zc)  %minimun no./negative number find kiya to find the entring variable
+        if all(A(:,pvt_col)<=0)    % min because maximization problem
+            error('LPP is unbounded')
+        else
+            sol=A(:,end)
+            column=A(:,pvt_col)   %pivot col being stored
+            for i=1:size(A,1)  % for all the rows of pivot col
+                if column(i)>0
+                    ratio(i)=sol(i)./column(i)
+                else
+                    ratio(i)=inf
+                end
+            end
+            [leaving_value,pvt_row]=min(ratio)
+        end
+        BV(pvt_row)=pvt_col
+        pvt_key=A(pvt_row,pvt_col)
+        A(pvt_row,:)=A(pvt_row,:)./pvt_key
+        %Row operation
+        for i=1:size(A,1)
+            if i~= pvt_row   %row operation on whole matrix except pivot row(operations lagake 0 karna baaki values ko)
+                A(i,:)=A(i,:)-A(i,pvt_col).*A(pvt_row,:)
+            end
+        end
+        zjcj=cost(BV)*A-cost
+        next_table=[zjcj;A]
+        array2table(next_table,'VariableNames',var)
+    else
+        RUN=false;
+        fprintf('zjcj(end)')
+    end
+end
+
+
